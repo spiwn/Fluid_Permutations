@@ -334,6 +334,8 @@ local function generateLocalisation(recipe)
                         newRecipeLocalisedName = {resultType.."-name."..recipe.main_product}
                     end
                 end
+            elseif recipe.result then
+                newRecipeLocalisedName = {"item-name."..recipe.result}
             end
         end
         if newRecipeLocalisedName == nil then
