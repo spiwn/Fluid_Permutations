@@ -377,7 +377,13 @@ local function generateRecipies()
             for i = 1, #permutations do
                 permutations[i].subgroup = subgroupName
                 permutations[i].localised_name = newRecipeLocalisedName
-                permutations[i].hidden = false
+                permutations[i].hidden = true
+                if permutations[i].normal then
+                    permutations[i].normal.hidden = true
+                end
+                if permutations[i].expensive then
+                    permutations[i].expensive.hidden = true
+                end
 
                 newRecipeNames[recipe.name][#newRecipeNames[recipe.name] + 1] = permutations[i].name
             end
