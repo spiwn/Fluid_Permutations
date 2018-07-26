@@ -346,7 +346,6 @@ local function generateLocalisation(recipe)
 end
 
 local function generateRecipies()
-    log("PP")
     local affectedRecipies = 0
     local newRecipiesCount = 0
 
