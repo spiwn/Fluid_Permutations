@@ -2,8 +2,7 @@ This mod allows you to rotate the fluid inputs and outputs of buildings.
 
 Have you ever wanted to change which fluid goes to which direction out of you refinery? Did you get frustrated that you cannot? Well this mod lets you do that.
 
-It does so by generating a recipe for each permutation of the input and output fluids and letting you change between them seamlessly.
-For example the Advanced oil processing takes 2 fluids and outputs 3 fluids, so this mod generates all 12 permutations(as can be seen in the pictures).
+It does so by generating a recipe for each permutation of the input and output fluids and letting you change between them seamlessly. For example the Advanced oil processing takes 2 fluids and outputs 3 fluids, so this mod generates all 12 permutations(as can be seen in the pictures).
 
 Instructions:
 1. Select a recipe with more than one fluid in the inputs and/or outputs
@@ -15,12 +14,12 @@ Instructions:
     Previous results rotation - CONTROL + ALT + R
 
 You can rotate fluids regardless of whether the building is currently crafting.
-This works with recipes from other mods.
+Works with recipes from other mods.
 
 Since the total number of recipes in Factorio is limited to 2 ^ 16 (65536) generating too much recipes is not a good idea.
 For that reason the "Permutations threshold" setting exists (default value: 120). If a recipe would generate more permutations than the threshold, it will be ignored and no addition recipes will be generated for it.
 
-This mod is heavily inspired by EmperorZelos' Omnipermute which in turn is inspired by GDIW.
+This mod is heavily inspired by EmperorZelos' Omnipermute.
 
 Why this and not Omnipermute:
 This has no dependencies
