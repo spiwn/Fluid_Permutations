@@ -27,10 +27,12 @@ local function separateFluids(items)
     local fluids = {}
     local solids = {}
     for _, i in pairs(items) do
-        if i.type == "fluid" then
-            fluids[#fluids + 1] = i
-        else
-            solids[#solids + 1] = i
+        if i ~= nil then
+            if i.type == "fluid" then
+                fluids[#fluids + 1] = i
+            else
+                solids[#solids + 1] = i
+            end
         end
     end
     return fluids, solids
