@@ -15,8 +15,10 @@ Instructions:
     Previous results rotation - CONTROL + ALT + R
 
 You can rotate fluids regardless of whether the building is currently crafting.
+This works with recipes from other mods.
 
-Since the total number of recipes in Factorio is limited to 2 ^ 16 (65536) generating too much recipes is not a good idea. For that reason the "Permutations threshold" setting exists, by default being 120. If a recipe would generate more permutations than the threshold, it will be ignored and no addition recipes will be generated for it.
+Since the total number of recipes in Factorio is limited to 2 ^ 16 (65536) generating too much recipes is not a good idea.
+For that reason the "Permutations threshold" setting exists (default value: 120). If a recipe would generate more permutations than the threshold, it will be ignored and no addition recipes will be generated for it.
 
 This mod is heavily inspired by EmperorZelos' Omnipermute which in turn is inspired by GDIW.
 
