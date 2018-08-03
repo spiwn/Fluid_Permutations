@@ -16,7 +16,9 @@ local function fluidCount(items)
     end
     local count = 0
     for i = 1, #items do
-        if items[i].type == "fluid" then count = count + 1 end
+        if items[i] ~= nil and items[i].type == "fluid" then
+            count = count + 1
+        end
     end
     return count
 end
