@@ -1,10 +1,12 @@
 {
-"name":"fluid_permutations",
-"version":"0.0.1",
-"factorio_version":"0.16",
-"title":"Fluid Permutations",
-"author":"spiwn",
-"description":"Rotate fluid inputs and outputs of buildings",
-"dependencies":["base",
-    "?SeaBlock"]
+    "name" : "fluid_permutations",
+    "version" : "0.0.1",
+    "factorio_version" : "0.16",
+    "title" : "Fluid Permutations",
+    "author" : "spiwn",
+    "description" : "Rotate fluid inputs and outputs of buildings",
+    "dependencies" : [
+        "base",
+        "?SeaBlock"
+    ]
 }

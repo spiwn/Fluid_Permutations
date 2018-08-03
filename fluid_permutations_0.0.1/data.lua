@@ -1,4 +1,4 @@
-require("constants")
+require("common")
 
 local function createPermutationsInputs()
     data:extend({

@@ -1,4 +1,4 @@
-require("constants")
+require("common")
 
 script.on_event(NEXT_INGREDIENTS_PERMUTATION_INPUT, function(event)
     change_fluid_recipe(event, NEXT_INGREDIENT_KEY)
@@ -60,10 +60,6 @@ function change_fluid_recipe(event, change)
     end
 end
 
-function recipeName(base, difficulty, ingredientPermutation, resultPermutation)
-    return base..RECIPE_AFFIX.."-"..difficulty.."-"..ingredientPermutation.."-"..resultPermutation
-end
-
 function buildRegistry()
     local reverseFactorial = {
         [0] = 0, [1] = 2, [2] = 2, [5] = 3, [6] = 3, [23] = 4, [24] = 4, [119] = 5, [120] = 5,
@@ -79,7 +75,7 @@ function buildRegistry()
         local s, e = string.find(recipe.name, "%"..RECIPE_AFFIX)
         if s then
             local originalRecipeName = string.sub(recipe.name, 0, s - 1)
-            local _, _, recipeDifficulty, ingredientRotation, resultRotation = string.find(recipe.name, "%-([ane])%-(%d+)%-(%d+)", e)
+            local _, _, recipeDifficulty, ingredientRotation, resultRotation = string.find(recipe.name, "%-d([ane])%-i(%d+)%-r(%d+)", e)
             if recipeDifficulty == "a" or difficultyMap[recipeDifficulty] == difficulty then
                 local group = groups[originalRecipeName]
                 if not group then
@@ -126,13 +122,13 @@ function buildRegistry()
             ingredientRotation = limits.maxI,
             resultRotation = limits.maxR
         }
-        local alternativeBaseName = recipeName(name, limits.difficulty, limits.maxI, limits.maxR)
+        local alternativeBaseName = functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, limits.maxI, limits.maxR)
         group[alternativeBaseName] = base
         local resultsFluidCount = reverseFactorial[limits.maxR]
         local ingredientsFluidCount = reverseFactorial[limits.maxI]
         for _, permutation in pairs(group) do
             if limits.maxR > 0 then
-                local r = group[recipeName(name, limits.difficulty, permutation.ingredientRotation, permutation.resultRotation % limits.maxR + 1)]
+                local r = group[functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation, permutation.resultRotation % limits.maxR + 1)]
 
                 permutation[PREVIOUS_RESULT_KEY] = r
                 r[NEXT_RESULT_KEY] = permutation
@@ -140,7 +136,7 @@ function buildRegistry()
                 permutation.resultsFluidCount = reverseFactorial[limits.maxR]
             end
             if limits.maxI > 0 then
-                local d = group[recipeName(name, limits.difficulty, permutation.ingredientRotation % limits.maxI + 1, permutation.resultRotation)]
+                local d = group[functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation % limits.maxI + 1, permutation.resultRotation)]
 
                 permutation[PREVIOUS_INGREDIENT_KEY] = d
                 d[NEXT_INGREDIENT_KEY] = permutation

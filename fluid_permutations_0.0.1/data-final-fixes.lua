@@ -1,4 +1,4 @@
-require("constants")
+require("common")
 
 local permutationsThreshold = settings.startup["fluid-permutations-threshold"].value
 
@@ -278,7 +278,7 @@ local function generateRecipePermutations(recipe)
                     if resultsSetter then
                         resultsSetter(newRecipe, difficultyTag, resultsPermutations[j])
                     end
-                    newRecipe.name = recipe.name..RECIPE_AFFIX.."-"..difficultyTag.."-"..i.."-"..j
+                    newRecipe.name = functions.generateRecipeName(recipe.name, RECIPE_AFFIX, difficultyTag, i, j)
                     newRecipies[#newRecipies + 1] = newRecipe
                 end
             end
@@ -437,4 +437,6 @@ local function generateRecipies()
     end
 end
 
-generateRecipies()
+if mods["omnimatter_fluid"] == nil and mods["omnilib"] == nil then
+    generateRecipies()
+end
