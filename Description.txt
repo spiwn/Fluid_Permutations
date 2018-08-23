@@ -26,6 +26,4 @@ This has no dependencies
 It does not conflict with your other mods (maybe)
 You can add this mod to your existing saves without it resetting your factories.
 
-However this mod is incompatible with omnilib - at specific conditions interaction between the two results in an error.
-
 You can report problems in the Discussion section.

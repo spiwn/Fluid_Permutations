@@ -441,6 +441,4 @@ local function generateRecipies()
     end
 end
 
-if mods["omnimatter_fluid"] == nil and mods["omnilib"] == nil then
-    generateRecipies()
-end
+generateRecipies()

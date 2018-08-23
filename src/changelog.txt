@@ -4,3 +4,5 @@ Date: 23. 08. 2018
   Info:
     - Added a changelog
     - Improved the recipe parsing slightly
+    - Made compatible with Omnimatter (Still Omnimatter explicitly throws an error if Fluid Permutations is enabled, I can do nothing about that)
+    - These changes are backward compatible
