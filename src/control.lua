@@ -68,14 +68,13 @@ function buildRegistry()
     local difficulty = game.difficulty_settings.recipe_difficulty
     -- n - normal - '0', e - expensive - '1', a - all - '-1'
     local difficultyMap = { n = 0, e = 1, a = -1}
-
+    local regexString = "%"..RECIPE_AFFIX.."%-d([ane])%-i(%d+)%-r(%d+)"
     local groups = {}
     local permutations = {}
     for _, recipe in pairs(game.recipe_prototypes) do
-        local s, e = string.find(recipe.name, "%"..RECIPE_AFFIX)
+        local s, e, recipeDifficulty, ingredientRotation, resultRotation = string.find(recipe.name, regexString)
         if s then
             local originalRecipeName = string.sub(recipe.name, 0, s - 1)
-            local _, _, recipeDifficulty, ingredientRotation, resultRotation = string.find(recipe.name, "%-d([ane])%-i(%d+)%-r(%d+)", e)
             if recipeDifficulty == "a" or difficultyMap[recipeDifficulty] == difficulty then
                 local group = groups[originalRecipeName]
                 if not group then

@@ -1,4 +1,6 @@
+---------------------------------------------------------------------------------------------------
 Version: 0.0.3
 Date: 23. 08. 2018
   Info:
     - Added a changelog
+    - Improved the recipe parsing slightly

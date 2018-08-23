@@ -6,7 +6,7 @@ It does so by generating a recipe for each permutation of the input and output f
 
 Instructions:
 1. Select a recipe with more than one fluid in the inputs and/or outputs
-2. Hover over it
+2. Hover over the building
 3. Use one of the appropriate controls:
     Next ingredients rotation - CONTROL + SHIFT + I
     Previous ingredients rotation - CONTROL + ALT + I
@@ -16,7 +16,7 @@ Instructions:
 You can rotate fluids regardless of whether the building is currently crafting.
 Works with recipes from other mods.
 
-Since the total number of recipes in Factorio is limited to 2 ^ 16 (65536) generating too much recipes is not a good idea.
+Since the total number of recipes in Factorio is limited to 2 ^ 16 (65536), generating too much recipes is not a good idea.
 For that reason the "Permutations threshold" setting exists (default value: 120). If a recipe would generate more permutations than the threshold, it will be ignored and no addition recipes will be generated for it.
 
 This mod is heavily inspired by EmperorZelos' Omnipermute.
