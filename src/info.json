@@ -8,6 +8,9 @@
     "dependencies" : [
         "base",
         "?SeaBlock",
-        "?omnimatter"
+        "?omnimatter",
+        "?MoreScience",
+        "?MoreSciencePacks",
+        "?Clowns-Science"
     ]
 }
