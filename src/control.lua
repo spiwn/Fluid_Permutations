@@ -68,7 +68,10 @@ local function togglePermutations(effects, force, enabled)
             local otherRecipes = unlocks[effect.recipe]
             if otherRecipes ~= nil then
                 for j = 1, #otherRecipes do
-                     force.recipes[otherRecipes[j]].enabled = enabled
+                    local recipe = force.recipes[otherRecipes[j]]
+                    if recipe ~= nil then
+                        recipe.enabled = enabled
+                    end
                 end
             end
         end
