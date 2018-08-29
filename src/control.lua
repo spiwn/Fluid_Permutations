@@ -193,7 +193,7 @@ end
 
 script.on_load(function()
     permutations = global.permutations
-    unlocks = global.unlocks
+    unlocks = global.unlocks or {}
 end)
 
 script.on_configuration_changed( function(conf)
