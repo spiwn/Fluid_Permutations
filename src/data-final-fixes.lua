@@ -412,20 +412,6 @@ local function generateRecipies()
         end
     end
 
-    for _, technology in pairs(data.raw.technology) do
-        if technology.effects then
-            local newEffects = {}
-            for i = #technology.effects, 1, -1 do
-                local effect = technology.effects[i]
-                if effect.type == "unlock-recipe" and newRecipeNames[effect.recipe] then
-                    for _, recipeName in pairs(newRecipeNames[effect.recipe]) do
-                        technology.effects[#technology.effects + 1] = {type="unlock-recipe",recipe=recipeName}
-                    end
-                end
-            end
-        end
-    end
-
     for _, moduleItem in pairs(data.raw.module) do
         if moduleItem.limitation then
             local newRestrictions = {}

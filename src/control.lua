@@ -13,13 +13,14 @@ end)
 script.on_event(PREVIOUS_RESULTS_PERMUTATION_INPUT, function(event)
     change_fluid_recipe(event, PREVIOUS_RESULT_KEY)
 end)
+
 function change_fluid_recipe(event, change)
     local player = game.players[event.player_index]
     if player.selected and player.selected.type == "assembling-machine" then
         local building = player.selected
         local recipe = building.get_recipe()
         if recipe then
-            local recipePermutations = global.permutations[recipe.name]
+            local recipePermutations = permutations[recipe.name]
             if recipePermutations then
                 local targetPermutation = recipePermutations[change]
                 if targetPermutation then
@@ -60,6 +61,33 @@ function change_fluid_recipe(event, change)
     end
 end
 
+local function togglePermutations(effects, force, enabled)
+    for i = 1, #effects do
+        local effect = effects[i]
+        if effect.type == "unlock-recipe" then
+            local otherRecipes = unlocks[effect.recipe]
+            if otherRecipes ~= nil then
+                for j = 1, #otherRecipes do
+                     force.recipes[otherRecipes[j]].enabled = enabled
+                end
+            end
+        end
+    end
+end
+
+script.on_event(defines.events.on_research_finished, function(event)
+    local effects = event.research.effects
+    local force = event.research.force
+    togglePermutations(effects, force, true)
+end)
+
+script.on_event(defines.events.on_technology_effects_reset, function(event)
+    local force = event.force
+    for _, technology in pairs(force.technologies) do
+        togglePermutations(technology.effects, force, technology.researched)
+    end
+end)
+
 function buildRegistry()
     local reverseFactorial = {
         [0] = 0, [1] = 2, [2] = 2, [5] = 3, [6] = 3, [23] = 4, [24] = 4, [119] = 5, [120] = 5,
@@ -71,7 +99,9 @@ function buildRegistry()
     local fpPatternString = "%"..RECIPE_AFFIX.."%-d([ane])%-i(%d+)%-r(%d+)"
     local omnipermPattern = OMNIPERMUTE_AFFIX.."%-%d+-%d+"
     local groups = {}
-    local permutations = {}
+    permutations = {}
+    unlocks = {}
+
     for _, recipe in pairs(game.recipe_prototypes) do
         local start, _, recipeDifficulty, ingredientRotation, resultRotation = string.find(recipe.name, fpPatternString)
         if start then
@@ -120,6 +150,8 @@ function buildRegistry()
             limits.maxI = 2
         end
 
+        local recipeUnlocks = {}
+
         local base = {
             name = name,
             groupName = name,
@@ -131,6 +163,9 @@ function buildRegistry()
         local resultsFluidCount = reverseFactorial[limits.maxR]
         local ingredientsFluidCount = reverseFactorial[limits.maxI]
         for _, permutation in pairs(group) do
+
+            recipeUnlocks[#recipeUnlocks + 1] = permutations.name
+
             if limits.maxR > 0 then
                 local r = group[functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation, permutation.resultRotation % limits.maxR + 1)]
 
@@ -149,9 +184,17 @@ function buildRegistry()
             end
             permutations[permutation.name] = permutation
         end
+
+        unlocks[name] = recipeUnlocks
     end
     global.permutations = permutations
+    global.unlocks = unlocks
 end
+
+script.on_load(function()
+    permutations = global.permutations
+    unlocks = global.unlocks
+end)
 
 script.on_configuration_changed( function(conf)
     buildRegistry()
