@@ -84,11 +84,22 @@ script.on_event(defines.events.on_research_finished, function(event)
     togglePermutations(effects, force, true)
 end)
 
-script.on_event(defines.events.on_technology_effects_reset, function(event)
-    local force = event.force
+local function handleForceTechnologyEffectsReset(force)
     for _, technology in pairs(force.technologies) do
         togglePermutations(technology.effects, force, technology.researched)
     end
+end
+
+script.on_event(defines.events.on_technology_effects_reset, function(event)
+    handleForceTechnologyEffectsReset(event.force)
+end)
+
+script.on_event(defines.events.on_force_created, function(event)
+    handleForceTechnologyEffectsReset(event.force)
+end)
+
+script.on_event(defines.events.on_forces_merged, function(event)
+    handleForceTechnologyEffectsReset(event.destination)
 end)
 
 function buildRegistry()
@@ -167,7 +178,7 @@ function buildRegistry()
         local ingredientsFluidCount = reverseFactorial[limits.maxI]
         for _, permutation in pairs(group) do
 
-            recipeUnlocks[#recipeUnlocks + 1] = permutations.name
+            recipeUnlocks[#recipeUnlocks + 1] = permutation.name
 
             if limits.maxR > 0 then
                 local r = group[functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation, permutation.resultRotation % limits.maxR + 1)]
@@ -199,8 +210,11 @@ script.on_load(function()
     unlocks = global.unlocks or {}
 end)
 
-script.on_configuration_changed( function(conf)
+script.on_configuration_changed(function(conf)
     buildRegistry()
+    for _, force in pairs(game.forces) do
+        handleForceTechnologyEffectsReset(force)
+    end
 end)
 
 script.on_init( function(conf)

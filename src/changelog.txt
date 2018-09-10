@@ -1,12 +1,14 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.7
-Date: 30. 08. 2018
-  Bugfix:
+Date: 10. 09. 2018
+  Bugfixes:
     - Correctly handle configuration changes
+    - Handle force creation and merging
+    - Fix type-o
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.6
 Date: 29. 08. 2018
-  Bugfix:
+  Bugfixes:
     - Fix loading game for existing saves
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.5
