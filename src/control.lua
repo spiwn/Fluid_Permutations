@@ -50,11 +50,29 @@ function change_fluid_recipe(event, change)
                     building.products_finished = products_finished
 
                     for i = start, stop, step do
-                        local before = fluidsBefore[fluidbox.get_filter(i).name]
-                        if before ~= nil then
-                            fluidbox[i] = before
+                        local filter = fluidbox.get_filter(i)
+                        if filter ~= nil then
+                            local filterName = filter.name;
+                            local before = fluidsBefore[filterName]
+                            if before ~= nil then
+                                fluidbox[i] = before
+                                fluidsBefore[filterName] = nil
+                            end
                         end
                     end
+                    local k, v = next(fluidsBefore)
+                    if k ~= nil then
+                        for i = start, stop, step do
+                            if fluidbox.get_filter(i) == nil then
+                                fluidbox[i] = v;
+                                k, v = next(fluidsBefore, key)
+                                if k == nil then
+                                    break
+                                end
+                            end
+                        end
+                    end
+                    
                 end
             end
         end
