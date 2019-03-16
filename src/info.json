@@ -7,10 +7,10 @@
     "description" : "Rotate fluid inputs and outputs of buildings",
     "dependencies" : [
         "base",
-        "?SeaBlock",
-        "?omnimatter",
-        "?MoreScience",
-        "?MoreSciencePacks",
-        "?Clowns-Science"
+        "(?)SeaBlock",
+        "(?)omnimatter",
+        "(?)MoreScience",
+        "(?)MoreSciencePacks",
+        "(?)Clowns-Science"
     ]
 }
