@@ -1,8 +1,11 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.0
 Date: 16. 03. 2019
+  Bugfixes:
+    - Check if a recipe has results for normal or expensive but not for the other
   Info:
     - Add more optional dependencies and make all of them hidden
+    - Add a more detailed log message when an error is thrown while generating permutations for a recipe
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.9
 Date: 11. 03. 2019

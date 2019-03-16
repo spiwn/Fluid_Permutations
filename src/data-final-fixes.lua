@@ -151,7 +151,8 @@ local function inspectRecipe(recipe)
 
             normalSameAsExpensive = normalSameAsExpensive
                 and ((recipe.normal.results == nil and recipe.expensive.results == nil)
-                        or checkSameItems(recipe.normal.results, recipe.expensive.results))
+                        or (recipe.normal.results ~= nil and recipe.expensive.results ~= nil
+                                and checkSameItems(recipe.normal.results, recipe.expensive.results)))
 
             if normalSameAsExpensive then
                 difficultyTags = {"a"}
@@ -357,7 +358,11 @@ local function generateRecipies()
     local newRecipies = {}
     local newRecipeNames = {}
     for _,recipe in pairs(data.raw.recipe) do
-        local permutations = generateRecipePermutations(recipe)
+        local status, permutations = pcall(generateRecipePermutations, recipe)
+        if not status then
+            log("Error while generating permutations for recipe: "..serpent.block(recipe))
+            error(permutations)
+        end
 
         if #permutations > 0 then
             local subgroupName
