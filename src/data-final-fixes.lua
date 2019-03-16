@@ -90,11 +90,17 @@ local function checkSameItems(tab1, tab2)
     end
 
     for i = 1, #tab1 do
-        if tab1[i].name ~= tab2[i].name then
-            return false
-        end
-        if tab1[i].type ~= tab2[i].type then
-            return false
+        if tab1[i] ~= nil and tab2[i] ~= nil then
+            if tab1[i].name ~= tab2[i].name then
+                return false
+            end
+            if tab1[i].type ~= tab2[i].type then
+                return false
+            end
+        else
+            if tab1[i] ~= nil or tab2[i] ~= nil then
+                return false;
+            end
         end
     end
     return true
