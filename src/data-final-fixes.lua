@@ -16,7 +16,9 @@ local function fluidCount(items)
     end
     local count = 0
     for i = 1, #items do
-        if items[i] ~= nil and items[i].type == "fluid" then
+        if items[i] ~= nil
+            and items[i].type ~= nil
+            and items[i].type == "fluid" then
             count = count + 1
         end
     end
@@ -28,7 +30,8 @@ local function separateFluids(items)
     local solids = {}
     for _, i in pairs(items) do
         if i ~= nil then
-            if i.type == "fluid" then
+            if i.type ~= nil
+                and i.type == "fluid" then
                 fluids[#fluids + 1] = i
             else
                 solids[#solids + 1] = i
@@ -309,7 +312,8 @@ local function generateLocalisation(recipe)
                     if recipe.normal.results[1].type == "fluid" then
                         newRecipeLocalisedName = {"fluid-name."..recipe.normal.results[1].name}
                     else
-                        newRecipeLocalisedName = {"item-name."..recipe.normal.results[1].name}
+                        local result = recipe.normal.results[1]
+                        newRecipeLocalisedName = {"item-name."..(result[1] or result.name)}
                     end
                 elseif recipe.normal.main_product or recipe.main_product then
                     local resultType
@@ -331,13 +335,15 @@ local function generateLocalisation(recipe)
                     if recipe.results[1].type == "fluid" then
                         newRecipeLocalisedName = {"fluid-name."..recipe.results[1].name}
                     else
-                        newRecipeLocalisedName = {"item-name."..recipe.results[1].name}
+                        local result = recipe.results[1]
+                        newRecipeLocalisedName = {"item-name."..(result[1] or result.name)}
                     end
                 elseif recipe.main_product then
                     local resultType
                     for i = 1, #recipe.results do
-                        if recipe.results[i].name == recipe.main_product then
-                            resultType = recipe.results[i].type
+                        local result = recipe.results[i]
+                        if (result[1] or result.name) == recipe.main_product then
+                            resultType = result.type
                             break
                         end
                     end
