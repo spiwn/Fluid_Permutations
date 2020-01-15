@@ -343,7 +343,7 @@ local function generateLocalisation(recipe)
                     for i = 1, #recipe.results do
                         local result = recipe.results[i]
                         if (result[1] or result.name) == recipe.main_product then
-                            resultType = result.type
+                            resultType = result.type or "item"
                             break
                         end
                     end

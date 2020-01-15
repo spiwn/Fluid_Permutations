@@ -1,3 +1,7 @@
+Version: 0.1.3
+Date: 15. 01. 2020
+  Bugfixes:
+    - Account for products being defined with a table without type property (default value is "item")
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.2
 Date: 30. 08. 2019
