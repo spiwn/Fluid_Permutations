@@ -1,6 +1,6 @@
 {
     "name" : "fluid_permutations",
-    "version" : "0.1.3",
+    "version" : "0.1.4",
     "factorio_version" : "0.17",
     "title" : "Fluid Permutations",
     "author" : "spiwn",
@@ -14,6 +14,7 @@
         "(?)MoreSciencePacks",
         "(?)Clowns-Science",
         "(?)ScienceCostTweakerM",
+        "(?)MomoTweak",
         "(?)angelspetrochem"
     ]
 }
