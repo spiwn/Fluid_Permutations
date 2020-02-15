@@ -1,7 +1,7 @@
 {
     "name" : "fluid_permutations",
-    "version" : "0.1.1",
-    "factorio_version" : "0.17",
+    "version" : "0.2.0",
+    "factorio_version" : "0.18",
     "title" : "Fluid Permutations",
     "author" : "spiwn",
     "description" : "Rotate fluid inputs and outputs of buildings",
