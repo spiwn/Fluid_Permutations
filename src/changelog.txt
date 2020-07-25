@@ -1,5 +1,5 @@
 Version: 0.2.1
-Date: ??. ??. ????
+Date: 25. 07. 2020
   Info:
     - Some code cleanup
     - Reversed iteration order of the permutations when selecting a permutation
