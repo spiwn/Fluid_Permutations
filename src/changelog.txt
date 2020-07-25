@@ -1,3 +1,12 @@
+Version: 0.2.1
+Date: ??. ??. ????
+  Info:
+    - Some code cleanup
+    - Reversed iteration order of the permutations when selecting a permutation
+  Bugfixes:
+    - Added SuperExpensiveMode as an optional dependency
+    - Fixed code for permutation generation for expensive mode
+---------------------------------------------------------------------------------------------------
 Version: 0.2.0
 Date: 16. 06. 2020
   Info:

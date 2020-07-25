@@ -16,63 +16,66 @@ end)
 
 function change_fluid_recipe(event, change)
     local player = game.players[event.player_index]
-    if player.selected and player.selected.type == "assembling-machine" then
-        local building = player.selected
-        local recipe = building.get_recipe()
-        if recipe then
-            local recipePermutations = permutations[recipe.name]
-            if recipePermutations then
-                local targetPermutation = recipePermutations[change]
-                if targetPermutation then
-                    local crafting_progress = building.crafting_progress
-                    local bonus_progress = building.bonus_progress
-                    local products_finished = building.products_finished
+    if not (player.selected and player.selected.type == "assembling-machine") then
+        return
+    end
+    local building = player.selected
+    local recipe = building.get_recipe()
+    if not recipe then
+        return
+    end
+    local recipePermutations = permutations[recipe.name]
+    if not recipePermutations then
+        return
+    end
+    local targetPermutation = recipePermutations[change]
+    if not targetPermutation then
+        return
+    end
+    local crafting_progress = building.crafting_progress
+    local bonus_progress = building.bonus_progress
+    local products_finished = building.products_finished
 
-                    local fluidsBefore = {}
-                    local fluidbox = building.fluidbox
-                    local start,stop
-                    if change <= PREVIOUS_INGREDIENT_KEY then
-                        start, stop, step = 1, recipePermutations.ingredientsFluidCount, 1
-                    else
-                        start, stop, step = #fluidbox, #fluidbox - recipePermutations.resultsFluidCount + 1, -1
-                    end
+    local fluidsBefore = {}
+    local fluidbox = building.fluidbox
+    local start,stop
+    if change <= PREVIOUS_INGREDIENT_KEY then
+        start, stop, step = 1, recipePermutations.ingredientsFluidCount, 1
+    else
+        start, stop, step = #fluidbox, #fluidbox - recipePermutations.resultsFluidCount + 1, -1
+    end
 
-                    for i = start, stop, step do
-                        if fluidbox[i] ~=nil then
-                            fluidsBefore[fluidbox[i].name] = fluidbox[i]
-                        end
-                    end
+    for i = start, stop, step do
+        if fluidbox[i] ~=nil then
+            fluidsBefore[fluidbox[i].name] = fluidbox[i]
+        end
+    end
 
-                    building.set_recipe(targetPermutation.name) -- ignore leftovers, since the crafting progress will be set
+    building.set_recipe(targetPermutation.name) -- ignore leftovers, since the crafting progress will be set
 
-                    building.crafting_progress = crafting_progress
-                    building.bonus_progress = bonus_progress
-                    building.products_finished = products_finished
+    building.crafting_progress = crafting_progress
+    building.bonus_progress = bonus_progress
+    building.products_finished = products_finished
 
-                    for i = start, stop, step do
-                        local filter = fluidbox.get_filter(i)
-                        if filter ~= nil then
-                            local filterName = filter.name;
-                            local before = fluidsBefore[filterName]
-                            if before ~= nil then
-                                fluidbox[i] = before
-                                fluidsBefore[filterName] = nil
-                            end
-                        end
-                    end
-                    local k, v = next(fluidsBefore)
-                    if k ~= nil then
-                        for i = start, stop, step do
-                            if fluidbox.get_filter(i) == nil then
-                                fluidbox[i] = v;
-                                k, v = next(fluidsBefore, key)
-                                if k == nil then
-                                    break
-                                end
-                            end
-                        end
-                    end
-                    
+    for i = start, stop, step do
+        local filter = fluidbox.get_filter(i)
+        if filter ~= nil then
+            local filterName = filter.name;
+            local before = fluidsBefore[filterName]
+            if before ~= nil then
+                fluidbox[i] = before
+                fluidsBefore[filterName] = nil
+            end
+        end
+    end
+    local k, v = next(fluidsBefore)
+    if k ~= nil then
+        for i = start, stop, step do
+            if fluidbox.get_filter(i) == nil then
+                fluidbox[i] = v;
+                k, v = next(fluidsBefore, key)
+                if k == nil then
+                    break
                 end
             end
         end
@@ -167,6 +170,7 @@ function buildRegistry()
                     ingredientRotation = ingredientRotation,
                     resultRotation = resultRotation
                 }
+                
             end
         end
     end
@@ -199,18 +203,20 @@ function buildRegistry()
             recipeUnlocks[#recipeUnlocks + 1] = permutation.name
 
             if limits.maxR > 0 then
-                local r = group[functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation, permutation.resultRotation % limits.maxR + 1)]
+                local nextPermuationName = functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation, permutation.resultRotation % limits.maxR + 1)
+                local r = group[nextPermuationName]
 
-                permutation[PREVIOUS_RESULT_KEY] = r
-                r[NEXT_RESULT_KEY] = permutation
+                permutation[NEXT_RESULT_KEY] = r
+                r[PREVIOUS_RESULT_KEY] = permutation
 
                 permutation.resultsFluidCount = reverseFactorial[limits.maxR]
             end
             if limits.maxI > 0 then
-                local d = group[functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation % limits.maxI + 1, permutation.resultRotation)]
+                local nextPermuationName = functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation % limits.maxI + 1, permutation.resultRotation)
+                local d = group[nextPermuationName]
 
-                permutation[PREVIOUS_INGREDIENT_KEY] = d
-                d[NEXT_INGREDIENT_KEY] = permutation
+                permutation[NEXT_INGREDIENT_KEY] = d
+                d[PREVIOUS_INGREDIENT_KEY] = permutation
 
                 permutation.ingredientsFluidCount = reverseFactorial[limits.maxI]
             end

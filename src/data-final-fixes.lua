@@ -197,12 +197,17 @@ local function inspectRecipe(recipe)
 
         if normalIngredientsFluidCount > 1 then
             normalIngredientsPermutations = getFluidPermutations(recipe.normal.ingredients)
-            ingredientsSetter = accessors.difficultyIngredientsSetter
         end
         if normalResultsFluidCount > 1 then
             normalResultsPermutations = getFluidPermutations(recipe.normal.results)
+        end
+        if normalIngredientsPermutations or expensiveIngredientsPermutations then
+            ingredientsSetter = accessors.difficultyIngredientsSetter
+        end
+        if normalResultsPermutations or expensiveResultsPermutations then
             resultsSetter = accessors.difficultyResultsSetter
         end
+        
         if normalIngredientsPermutations and expensiveIngredientsPermutations then
             if normalSameAsExpensive then
                 local combinedIngredientsPermutations = {}

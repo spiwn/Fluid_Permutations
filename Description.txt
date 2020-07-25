@@ -1,6 +1,6 @@
 This mod allows you to rotate the fluid inputs and outputs of buildings.
 
-Have you ever wanted to change which fluid goes to which direction out of you refinery? Did you get frustrated that you cannot? Well this mod lets you do that.
+Have you ever wanted to change which fluid goes to which direction out of your refinery? Did you get frustrated that you cannot? Well this mod lets you do that.
 
 It does so by generating a recipe for each permutation of the input and output fluids and letting you change between them seamlessly. For example the Advanced oil processing takes 2 fluids and outputs 3 fluids, so this mod generates all 12 permutations(as can be seen in the pictures).
 
