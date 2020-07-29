@@ -124,6 +124,8 @@ script.on_event(defines.events.on_forces_merged, function(event)
 end)
 
 function buildRegistry()
+    local simpleMode = settings.startup["fluid-permutations-simple-mode"].value
+
     local reverseFactorial = {
         [0] = 0, [1] = 2, [2] = 2, [5] = 3, [6] = 3, [23] = 4, [24] = 4, [119] = 5, [120] = 5,
         [719] = 6, [720] = 6, [5039] = 7, [5040] = 7, [40319] = 8, [40320] = 8 }
@@ -170,7 +172,6 @@ function buildRegistry()
                     ingredientRotation = ingredientRotation,
                     resultRotation = resultRotation
                 }
-                
             end
         end
     end
@@ -196,29 +197,44 @@ function buildRegistry()
         }
         local alternativeBaseName = functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, limits.maxI, limits.maxR)
         group[alternativeBaseName] = base
-        local resultsFluidCount = reverseFactorial[limits.maxR]
-        local ingredientsFluidCount = reverseFactorial[limits.maxI]
+
+        local resultsFluidCount = 0
+        local ingredientsFluidCount = 0
+        resultsFluidCount = reverseFactorial[limits.maxR]
+        ingredientsFluidCount = reverseFactorial[limits.maxI]
         for _, permutation in pairs(group) do
 
             recipeUnlocks[#recipeUnlocks + 1] = permutation.name
 
             if limits.maxR > 0 then
-                local nextPermuationName = functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation, permutation.resultRotation % limits.maxR + 1)
-                local r = group[nextPermuationName]
+                local nextPermutationIndex
+                if simpleMode and permutation.resultRotation < limits.maxR then
+                    nextPermutationIndex = limits.maxR
+                else
+                    nextPermutationIndex = permutation.resultRotation % limits.maxR + 1
+                end
+                local nextPermutationName = functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation, nextPermutationIndex)
+                local r = group[nextPermutationName]
 
                 permutation[NEXT_RESULT_KEY] = r
                 r[PREVIOUS_RESULT_KEY] = permutation
 
-                permutation.resultsFluidCount = reverseFactorial[limits.maxR]
+                permutation.resultsFluidCount = resultsFluidCount
             end
             if limits.maxI > 0 then
-                local nextPermuationName = functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation % limits.maxI + 1, permutation.resultRotation)
-                local d = group[nextPermuationName]
+                local nextPermutationIndex
+                if simpleMode and permutation.ingredientRotation < limits.maxI then
+                    nextPermutationIndex = limits.maxI
+                else
+                    nextPermutationIndex = permutation.ingredientRotation % limits.maxI + 1
+                end
+                local nextPermutationName = functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, nextPermutationIndex, permutation.resultRotation)
+                local d = group[nextPermutationName]
 
                 permutation[NEXT_INGREDIENT_KEY] = d
                 d[PREVIOUS_INGREDIENT_KEY] = permutation
 
-                permutation.ingredientsFluidCount = reverseFactorial[limits.maxI]
+                permutation.ingredientsFluidCount = ingredientsFluidCount
             end
             permutations[permutation.name] = permutation
         end

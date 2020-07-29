@@ -1,6 +1,7 @@
 require("common")
 
 local permutationsThreshold = settings.startup["fluid-permutations-threshold"].value
+local simpleMode = settings.startup["fluid-permutations-simple-mode"].value
 
 local function factorial(num)
     local result = 1
@@ -76,7 +77,16 @@ end
 local function getFluidPermutations(tableOfItems)
     local fluids, solids = separateFluids(tableOfItems)
     local fluidPermutations = {}
-    permutations(fluids, #fluids, fluidPermutations)
+    if simpleMode then
+        local reversedFluids = {}
+        for i = 1, #fluids do
+            reversedFluids[i] = fluids[#fluids + 1 - i]
+        end
+        fluidPermutations[1] = reversedFluids
+        fluidPermutations[2] = fluids
+    else
+        permutations(fluids, #fluids, fluidPermutations)
+    end
 
     local result = {}
 
@@ -141,7 +151,8 @@ local accessors = {
 local function inspectRecipe(recipe)
     local permutations = {a = {}, n = {}, e = {}}
     local ingredientsSetter, resultsSetter
-    local difficultyTags
+    local difficultyTags = {}
+    local maxPermutations = {}
     if recipe.normal then
         local normalIngredientsPermutations
         local expensiveIngredientsPermutations
@@ -164,16 +175,23 @@ local function inspectRecipe(recipe)
                                 and checkSameItems(recipe.normal.results, recipe.expensive.results)))
 
             if normalSameAsExpensive then
-                difficultyTags = {"a"}
+                difficultyTags["a"] = 1
             else
-                difficultyTags = {"n", "e"}
+                difficultyTags["n"] = 1
+                difficultyTags["e"] = 1
             end
 
             local expensiveIngredientsFluidCount = fluidCount(recipe.expensive.ingredients)
             local expensiveResultsFluidCount = fluidCount(recipe.expensive.results)
-            permutationCount = math.max(1, factorial(expensiveIngredientsFluidCount)) * math.max(1, factorial(expensiveResultsFluidCount))
+            local expensiveIngredientsPermutationsMaxCount = math.max(1, factorial(expensiveIngredientsFluidCount))
+            local expensiveResultsPermutationsMaxCount = math.max(1, factorial(expensiveResultsFluidCount))
+            if simpleMode then
+                permutationCount = math.max(1, expensiveIngredientsFluidCount) * math.max(1, expensiveResultsFluidCount)
+            else
+                permutationCount = expensiveIngredientsPermutationsMaxCount * expensiveResultsPermutationsMaxCount
+            end
             if permutationCount > permutationsThreshold then
-                return {}, nil, nil, {}
+                return {}, nil, nil, {}, {}
             end
 
             if expensiveIngredientsFluidCount > 1 then
@@ -182,16 +200,29 @@ local function inspectRecipe(recipe)
             if expensiveResultsFluidCount > 1 then
                 expensiveResultsPermutations = getFluidPermutations(recipe.expensive.results)
             end
+
+            if normalSameAsExpensive then
+                maxPermutations["a"] = {expensiveIngredientsPermutationsMaxCount, expensiveResultsPermutationsMaxCount}
+            else
+                maxPermutations["e"] = {expensiveIngredientsPermutationsMaxCount, expensiveResultsPermutationsMaxCount}
+            end
         else
-            difficultyTags = {"n"}
+            difficultyTags["n"] = 1
         end
 
         local normalIngredientsFluidCount = fluidCount(recipe.normal.ingredients)
         local normalResultsFluidCount = fluidCount(recipe.normal.results)
+        local normalIngredientsPermutationsMaxCount = math.max(1, factorial(normalIngredientsFluidCount))
+        local normalResultsPermutationsMaxCount = math.max(1, factorial(normalResultsFluidCount))
+
         if not normalSameAsExpensive then
-            permutationCount = permutationCount + factorial(normalIngredientsFluidCount) * factorial(normalResultsFluidCount)
+            if simpleMode then
+                permutationCount = permutationCount + math.max(1, normalIngredientsFluidCount) * math.max(1, normalResultsFluidCount)
+            else
+                permutationCount = permutationCount + normalIngredientsPermutationsMaxCount * normalResultsPermutationsMaxCount
+            end
             if permutationCount > permutationsThreshold then
-                return {}, nil, nil, {}
+                return {}, nil, nil, {}, {}
             end
         end
 
@@ -207,7 +238,7 @@ local function inspectRecipe(recipe)
         if normalResultsPermutations or expensiveResultsPermutations then
             resultsSetter = accessors.difficultyResultsSetter
         end
-        
+
         if normalIngredientsPermutations and expensiveIngredientsPermutations then
             if normalSameAsExpensive then
                 local combinedIngredientsPermutations = {}
@@ -246,16 +277,30 @@ local function inspectRecipe(recipe)
         elseif expensiveResultsPermutations then
             permutations["e"].results = expensiveResultsPermutations
         end
+        if permutations["n"] then
+            maxPermutations["n"] = {normalIngredientsPermutationsMaxCount, normalResultsPermutationsMaxCount}
+        end
     else
         local ingredientsFluidCount = fluidCount(recipe.ingredients)
         local resultsFluidCount = fluidCount(recipe.results)
-        local permutationCount = factorial(ingredientsFluidCount) * factorial(resultsFluidCount)
+        local ingredientsPermutationsMaxCount;
+        local resultsPermutationsMaxCount = 0;
+        local permutationCount = 0
 
-        if permutationCount > permutationsThreshold then
-            return {}, nil, nil, {}
+        ingredientsPermutationsMaxCount = math.max(1, factorial(ingredientsFluidCount))
+        resultsPermutationsMaxCount = math.max(1, factorial(resultsFluidCount))
+
+        if simpleMode then
+            permutationCount = math.max(1, ingredientsFluidCount) * math.max(1, resultsFluidCount)
+        else
+            permutationCount = ingredientsPermutationsMaxCount * resultsPermutationsMaxCount
         end
 
-        difficultyTags = {"a"}
+        if permutationCount > permutationsThreshold then
+            return {}, nil, nil, {}, {}
+        end
+
+        difficultyTags["a"] = 1
         if ingredientsFluidCount > 1 then
             permutations["a"].ingredients = getFluidPermutations(recipe.ingredients)
             ingredientsSetter = accessors.ingredientsSetter
@@ -265,14 +310,16 @@ local function inspectRecipe(recipe)
             permutations["a"].results = getFluidPermutations(recipe.results)
             resultsSetter = accessors.resultsSetter
         end
+
+        maxPermutations["a"] = {ingredientsPermutationsMaxCount, resultsPermutationsMaxCount}
     end
-    return permutations, ingredientsSetter, resultsSetter, difficultyTags
+    return permutations, ingredientsSetter, resultsSetter, difficultyTags, maxPermutations
 end
 
 local function generateRecipePermutations(recipe)
-    local permutations, ingredientsSetter, resultsSetter, difficultyTags = inspectRecipe(recipe)
+    local permutations, ingredientsSetter, resultsSetter, difficultyTags, maxCounts = inspectRecipe(recipe)
     local newRecipies = {}
-    for _, difficultyTag in pairs(difficultyTags) do
+    for difficultyTag, _ in pairs(difficultyTags) do
         local ingredientsPermutations = permutations[difficultyTag].ingredients
         local resultsPermutations = permutations[difficultyTag].results
         local maxI = 0
@@ -297,7 +344,15 @@ local function generateRecipePermutations(recipe)
                     if resultsSetter then
                         resultsSetter(newRecipe, difficultyTag, resultsPermutations[j])
                     end
-                    newRecipe.name = functions.generateRecipeName(recipe.name, RECIPE_AFFIX, difficultyTag, i, j)
+                    if simpleMode and (i > 1 or j > 1) then
+                        if i > 1 then
+                            newRecipe.name = functions.generateRecipeName(recipe.name, RECIPE_AFFIX, difficultyTag, maxCounts[difficultyTag][1], j)
+                        else
+                            newRecipe.name = functions.generateRecipeName(recipe.name, RECIPE_AFFIX, difficultyTag, i, maxCounts[difficultyTag][2])
+                        end
+                    else
+                        newRecipe.name = functions.generateRecipeName(recipe.name, RECIPE_AFFIX, difficultyTag, i, j)
+                    end
                     newRecipies[#newRecipies + 1] = newRecipe
                 end
             end
