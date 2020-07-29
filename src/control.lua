@@ -51,7 +51,7 @@ function change_fluid_recipe(event, change)
         end
     end
 
-    building.set_recipe(targetPermutation.name) -- ignore leftovers, since the crafting progress will be set
+    building.set_recipe(targetPermutation) -- ignore leftovers, since the crafting progress will be set
 
     building.crafting_progress = crafting_progress
     building.bonus_progress = bonus_progress
@@ -216,8 +216,8 @@ function buildRegistry()
                 local nextPermutationName = functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation, nextPermutationIndex)
                 local r = group[nextPermutationName]
 
-                permutation[NEXT_RESULT_KEY] = r
-                r[PREVIOUS_RESULT_KEY] = permutation
+                permutation[NEXT_RESULT_KEY] = r.name
+                r[PREVIOUS_RESULT_KEY] = permutation.name
 
                 permutation.resultsFluidCount = resultsFluidCount
             end
@@ -231,8 +231,8 @@ function buildRegistry()
                 local nextPermutationName = functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, nextPermutationIndex, permutation.resultRotation)
                 local d = group[nextPermutationName]
 
-                permutation[NEXT_INGREDIENT_KEY] = d
-                d[PREVIOUS_INGREDIENT_KEY] = permutation
+                permutation[NEXT_INGREDIENT_KEY] = d.name
+                d[PREVIOUS_INGREDIENT_KEY] = permutation.name
 
                 permutation.ingredientsFluidCount = ingredientsFluidCount
             end
