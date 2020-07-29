@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.3.0
-Date: ??. ??. ????
+Date: 29. 07. 2020
   Features:
     - Added Simple mode - this mode generates only up to 3 recipes - reversed ingredients, reversed result and both reversed, skipping the other permutations. Disabled by default. If enabled, it will remove all the skipped permutations from existing saves upon loading them
   Info:
