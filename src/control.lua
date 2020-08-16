@@ -1,17 +1,17 @@
-require("common")
+local common = require("common")
 
-script.on_event(NEXT_INGREDIENTS_PERMUTATION_INPUT, function(event)
-    change_fluid_recipe(event, NEXT_INGREDIENT_KEY)
+script.on_event(common.NEXT_INGREDIENTS_PERMUTATION_INPUT, function(event)
+    change_fluid_recipe(event, common.NEXT_INGREDIENT_KEY)
 end)
-script.on_event(PREVIOUS_INGREDIENTS_PERMUTATION_INPUT, function(event)
-    change_fluid_recipe(event, PREVIOUS_INGREDIENT_KEY)
+script.on_event(common.PREVIOUS_INGREDIENTS_PERMUTATION_INPUT, function(event)
+    change_fluid_recipe(event, common.PREVIOUS_INGREDIENT_KEY)
 end)
-script.on_event(NEXT_RESULTS_PERMUTATION_INPUT, function(event)
-    change_fluid_recipe(event, NEXT_RESULT_KEY)
+script.on_event(common.NEXT_RESULTS_PERMUTATION_INPUT, function(event)
+    change_fluid_recipe(event, common.NEXT_RESULT_KEY)
 end)
 
-script.on_event(PREVIOUS_RESULTS_PERMUTATION_INPUT, function(event)
-    change_fluid_recipe(event, PREVIOUS_RESULT_KEY)
+script.on_event(common.PREVIOUS_RESULTS_PERMUTATION_INPUT, function(event)
+    change_fluid_recipe(event, common.PREVIOUS_RESULT_KEY)
 end)
 
 function change_fluid_recipe(event, change)
@@ -39,7 +39,7 @@ function change_fluid_recipe(event, change)
     local fluidsBefore = {}
     local fluidbox = building.fluidbox
     local start,stop
-    if change <= PREVIOUS_INGREDIENT_KEY then
+    if change <= common.PREVIOUS_INGREDIENT_KEY then
         start, stop, step = 1, recipePermutations.ingredientsFluidCount, 1
     else
         start, stop, step = #fluidbox, #fluidbox - recipePermutations.resultsFluidCount + 1, -1
@@ -125,6 +125,8 @@ end)
 
 function buildRegistry()
     local simpleMode = settings.startup["fluid-permutations-simple-mode"].value
+    
+    local generateRecipeName = common.functions.generateRecipeName
 
     local reverseFactorial = {
         [0] = 0, [1] = 2, [2] = 2, [5] = 3, [6] = 3, [23] = 4, [24] = 4, [119] = 5, [120] = 5,
@@ -133,8 +135,8 @@ function buildRegistry()
     local difficulty = game.difficulty_settings.recipe_difficulty
     -- n - normal - '0', e - expensive - '1', a - all - '-1'
     local difficultyMap = { n = 0, e = 1, a = -1}
-    local fpPatternString = "%"..RECIPE_AFFIX.."%-d([ane])%-i(%d+)%-r(%d+)"
-    local omnipermPattern = OMNIPERMUTE_AFFIX.."%-%d+-%d+"
+    local fpPatternString = "%"..common.FP_RECIPE_AFFIX.."%-d([ane])%-i(%d+)%-r(%d+)"
+    local omnipermPattern = common.OMNIPERMUTE_AFFIX.."%-%d+-%d+"
     local groups = {}
     permutations = {}
     unlocks = {}
@@ -195,7 +197,7 @@ function buildRegistry()
             ingredientRotation = limits.maxI,
             resultRotation = limits.maxR
         }
-        local alternativeBaseName = functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, limits.maxI, limits.maxR)
+        local alternativeBaseName = generateRecipeName(name, common.FP_RECIPE_AFFIX, limits.difficulty, limits.maxI, limits.maxR)
         group[alternativeBaseName] = base
 
         local resultsFluidCount = 0
@@ -213,11 +215,11 @@ function buildRegistry()
                 else
                     nextPermutationIndex = permutation.resultRotation % limits.maxR + 1
                 end
-                local nextPermutationName = functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation, nextPermutationIndex)
+                local nextPermutationName = generateRecipeName(name, common.FP_RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation, nextPermutationIndex)
                 local r = group[nextPermutationName]
 
-                permutation[NEXT_RESULT_KEY] = r.name
-                r[PREVIOUS_RESULT_KEY] = permutation.name
+                permutation[common.NEXT_RESULT_KEY] = r.name
+                r[common.PREVIOUS_RESULT_KEY] = permutation.name
 
                 permutation.resultsFluidCount = resultsFluidCount
             end
@@ -228,11 +230,11 @@ function buildRegistry()
                 else
                     nextPermutationIndex = permutation.ingredientRotation % limits.maxI + 1
                 end
-                local nextPermutationName = functions.generateRecipeName(name, RECIPE_AFFIX, limits.difficulty, nextPermutationIndex, permutation.resultRotation)
+                local nextPermutationName = generateRecipeName(name, common.FP_RECIPE_AFFIX, limits.difficulty, nextPermutationIndex, permutation.resultRotation)
                 local d = group[nextPermutationName]
 
-                permutation[NEXT_INGREDIENT_KEY] = d.name
-                d[PREVIOUS_INGREDIENT_KEY] = permutation.name
+                permutation[common.NEXT_INGREDIENT_KEY] = d.name
+                d[common.PREVIOUS_INGREDIENT_KEY] = permutation.name
 
                 permutation.ingredientsFluidCount = ingredientsFluidCount
             end

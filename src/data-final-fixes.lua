@@ -1,7 +1,7 @@
-require("common")
+local common = require("common")
 
-local permutationsThreshold = settings.startup["fluid-permutations-threshold"].value
-local simpleMode = settings.startup["fluid-permutations-simple-mode"].value
+local permutationsThreshold = settings.startup[common.PERMUTATION_THRESHOLD_SETTING].value
+local simpleMode = settings.startup[common.SIMPLE_MODE_SETTING].value
 
 local function factorial(num)
     local result = 1
@@ -319,6 +319,7 @@ end
 local function generateRecipePermutations(recipe)
     local permutations, ingredientsSetter, resultsSetter, difficultyTags, maxCounts = inspectRecipe(recipe)
     local newRecipies = {}
+    local generateRecipeName = common.functions.generateRecipeName
     for difficultyTag, _ in pairs(difficultyTags) do
         local ingredientsPermutations = permutations[difficultyTag].ingredients
         local resultsPermutations = permutations[difficultyTag].results
@@ -346,12 +347,12 @@ local function generateRecipePermutations(recipe)
                     end
                     if simpleMode and (i > 1 or j > 1) then
                         if i > 1 then
-                            newRecipe.name = functions.generateRecipeName(recipe.name, RECIPE_AFFIX, difficultyTag, maxCounts[difficultyTag][1], j)
+                            newRecipe.name = generateRecipeName(recipe.name, common.FP_RECIPE_AFFIX, difficultyTag, maxCounts[difficultyTag][1], j)
                         else
-                            newRecipe.name = functions.generateRecipeName(recipe.name, RECIPE_AFFIX, difficultyTag, i, maxCounts[difficultyTag][2])
+                            newRecipe.name = generateRecipeName(recipe.name, common.FP_RECIPE_AFFIX, difficultyTag, i, maxCounts[difficultyTag][2])
                         end
                     else
-                        newRecipe.name = functions.generateRecipeName(recipe.name, RECIPE_AFFIX, difficultyTag, i, j)
+                        newRecipe.name = generateRecipeName(recipe.name,common.FP_RECIPE_AFFIX, difficultyTag, i, j)
                     end
                     newRecipies[#newRecipies + 1] = newRecipe
                 end
@@ -450,7 +451,7 @@ local function generateRecipies()
             newSubgroups[#newSubgroups + 1] = {
                 type = "item-subgroup",
                 name = subgroupName,
-                group = ITEM_GROUP_NAME,
+                group = common.FP_ITEM_GROUP_NAME,
                 order = subgroupOrder,
             }
             local newRecipeLocalisedName = generateLocalisation(recipe)

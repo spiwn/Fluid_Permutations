@@ -1,6 +1,8 @@
+local common = require("common")
+
 data:extend({{
     type = "int-setting",
-    name = "fluid-permutations-threshold",
+    name = common.PERMUTATION_THRESHOLD_SETTING,
     setting_type = "startup",
     default_value = 120,
     minimum_value = 4,
@@ -8,7 +10,7 @@ data:extend({{
   },
   {
     type = "bool-setting",
-    name = "fluid-permutations-simple-mode",
+    name = common.SIMPLE_MODE_SETTING,
     setting_type = "startup",
     default_value = false
   }})
