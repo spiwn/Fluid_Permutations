@@ -13,4 +13,9 @@ data:extend({{
     name = common.SIMPLE_MODE_SETTING,
     setting_type = "startup",
     default_value = false
+  },{
+    type = "bool-setting",
+    name = common.CROSS_CYCLE_SETTING,
+    setting_type = "runtime-per-user",
+    default_value = false
   }})

@@ -1,6 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.3.1
 Date: ??. ??. ??
+  Features:
+    - Added Cross Cycle mode - a per player setting (toggleable during game) that allows any of the hotkeys to be used to cycle through all permutations (ingredients and results)
   Info:
     - Change factorio version to 1.0
 ---------------------------------------------------------------------------------------------------
@@ -9,7 +11,7 @@ Date: 29. 07. 2020
   Features:
     - Added Simple mode - this mode generates only up to 3 recipes - reversed ingredients, reversed result and both reversed, skipping the other permutations. Disabled by default. If enabled, it will remove all the skipped permutations from existing saves upon loading them
   Info:
-    - Store recipe names in the permutation control registry instead of table references. This should reduce saving and loading speeds a bit. Saving and loading speeds were not a problem, just making some optimazations
+    - Store recipe names in the permutation control registry instead of table references. This should reduce saving and loading times a bit. Saving and loading speeds were not a problem, just making some optimazations
 ---------------------------------------------------------------------------------------------------
 Version: 0.2.1
 Date: 25. 07. 2020

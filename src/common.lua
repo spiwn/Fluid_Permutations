@@ -6,9 +6,14 @@ common = {
     ["PREVIOUS_INGREDIENT_KEY"] = 2,
     ["NEXT_RESULT_KEY"] = 3,
     ["PREVIOUS_RESULT_KEY"] = 4,
-    
+    ["NEXT_INGREDIENT_CROSS_KEY"] = 5,
+    ["PREVIOUS_INGREDIENT_CROSS_KEY"] = 6,
+    ["NEXT_RESULT_CROSS_KEY"] = 7,
+    ["PREVIOUS_RESULT_CROSS_KEY"] = 8,
+
     ["PERMUTATION_THRESHOLD_SETTING"] = "fluid-permutations-threshold",
     ["SIMPLE_MODE_SETTING"] = "fluid-permutations-simple-mode",
+    ["CROSS_CYCLE_SETTING"] = "fluid-permutations-cross-cycle",
 
     ["NEXT_INGREDIENTS_PERMUTATION_INPUT"] = "next-ingredients-fluid-recipe",
     ["PREVIOUS_INGREDIENTS_PERMUTATION_INPUT"] = "previous-ingredients-fluid-recipe",

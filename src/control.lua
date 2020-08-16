@@ -1,20 +1,27 @@
 local common = require("common")
 
-script.on_event(common.NEXT_INGREDIENTS_PERMUTATION_INPUT, function(event)
-    change_fluid_recipe(event, common.NEXT_INGREDIENT_KEY)
-end)
-script.on_event(common.PREVIOUS_INGREDIENTS_PERMUTATION_INPUT, function(event)
-    change_fluid_recipe(event, common.PREVIOUS_INGREDIENT_KEY)
-end)
-script.on_event(common.NEXT_RESULTS_PERMUTATION_INPUT, function(event)
-    change_fluid_recipe(event, common.NEXT_RESULT_KEY)
-end)
+local permutations
+local unlocks
+local playerSettings
 
-script.on_event(common.PREVIOUS_RESULTS_PERMUTATION_INPUT, function(event)
-    change_fluid_recipe(event, common.PREVIOUS_RESULT_KEY)
-end)
+local NEXT_INGREDIENTS_PERMUTATION_INPUT = common.NEXT_INGREDIENTS_PERMUTATION_INPUT
+local PREVIOUS_INGREDIENTS_PERMUTATION_INPUT = common.PREVIOUS_INGREDIENTS_PERMUTATION_INPUT
+local NEXT_RESULTS_PERMUTATION_INPUT = common.NEXT_RESULTS_PERMUTATION_INPUT
+local PREVIOUS_RESULTS_PERMUTATION_INPUT = common.PREVIOUS_RESULTS_PERMUTATION_INPUT
 
-function change_fluid_recipe(event, change)
+local NEXT_INGREDIENT_KEY = common.NEXT_INGREDIENT_KEY
+local PREVIOUS_INGREDIENT_KEY = common.PREVIOUS_INGREDIENT_KEY
+local NEXT_RESULT_KEY = common.NEXT_RESULT_KEY
+local PREVIOUS_RESULT_KEY = common.PREVIOUS_RESULT_KEY
+
+local NEXT_INGREDIENT_CROSS_KEY = common.NEXT_INGREDIENT_CROSS_KEY
+local PREVIOUS_INGREDIENT_CROSS_KEY = common.PREVIOUS_INGREDIENT_CROSS_KEY
+local NEXT_RESULT_CROSS_KEY = common.NEXT_RESULT_CROSS_KEY
+local PREVIOUS_RESULT_CROSS_KEY = common.PREVIOUS_RESULT_CROSS_KEY
+
+local CROSS_CYCLE_SETTING = common.CROSS_CYCLE_SETTING
+
+local function change_fluid_recipe(event, change)
     local player = game.players[event.player_index]
     if not (player.selected and player.selected.type == "assembling-machine") then
         return
@@ -28,10 +35,25 @@ function change_fluid_recipe(event, change)
     if not recipePermutations then
         return
     end
-    local targetPermutation = recipePermutations[change]
+
+    local crossCycle = playerSettings[event.player_index][CROSS_CYCLE_SETTING]
+    local invertChange = crossCycle
+
+    local targetPermutation
+
+    if crossCycle then
+        targetPermutation = recipePermutations[change + 4]
+    end
+
+    if (not crossCycle) or (not targetPermutation) then
+        targetPermutation = recipePermutations[change]
+        invertChange = false
+    end
+
     if not targetPermutation then
         return
     end
+
     local crafting_progress = building.crafting_progress
     local bonus_progress = building.bonus_progress
     local products_finished = building.products_finished
@@ -39,7 +61,7 @@ function change_fluid_recipe(event, change)
     local fluidsBefore = {}
     local fluidbox = building.fluidbox
     local start,stop
-    if change <= common.PREVIOUS_INGREDIENT_KEY then
+    if (change <= PREVIOUS_INGREDIENT_KEY) ~= same then
         start, stop, step = 1, recipePermutations.ingredientsFluidCount, 1
     else
         start, stop, step = #fluidbox, #fluidbox - recipePermutations.resultsFluidCount + 1, -1
@@ -82,6 +104,20 @@ function change_fluid_recipe(event, change)
     end
 end
 
+script.on_event(NEXT_INGREDIENTS_PERMUTATION_INPUT, function(event)
+    change_fluid_recipe(event, NEXT_INGREDIENT_KEY)
+end)
+script.on_event(PREVIOUS_INGREDIENTS_PERMUTATION_INPUT, function(event)
+    change_fluid_recipe(event, PREVIOUS_INGREDIENT_KEY)
+end)
+script.on_event(NEXT_RESULTS_PERMUTATION_INPUT, function(event)
+    change_fluid_recipe(event, NEXT_RESULT_KEY)
+end)
+
+script.on_event(PREVIOUS_RESULTS_PERMUTATION_INPUT, function(event)
+    change_fluid_recipe(event, PREVIOUS_RESULT_KEY)
+end)
+
 local function togglePermutations(effects, force, enabled)
     for i = 1, #effects do
         local effect = effects[i]
@@ -123,9 +159,9 @@ script.on_event(defines.events.on_forces_merged, function(event)
     handleForceTechnologyEffectsReset(event.destination)
 end)
 
-function buildRegistry()
+local function buildRegistry()
     local simpleMode = settings.startup["fluid-permutations-simple-mode"].value
-    
+
     local generateRecipeName = common.functions.generateRecipeName
 
     local reverseFactorial = {
@@ -209,36 +245,76 @@ function buildRegistry()
             recipeUnlocks[#recipeUnlocks + 1] = permutation.name
 
             if limits.maxR > 0 then
-                local nextPermutationIndex
+                local nextResultPermutationIndex
                 if simpleMode and permutation.resultRotation < limits.maxR then
-                    nextPermutationIndex = limits.maxR
+                    nextResultPermutationIndex = limits.maxR
                 else
-                    nextPermutationIndex = permutation.resultRotation % limits.maxR + 1
+                    nextResultPermutationIndex = permutation.resultRotation % limits.maxR + 1
                 end
-                local nextPermutationName = generateRecipeName(name, common.FP_RECIPE_AFFIX, limits.difficulty, permutation.ingredientRotation, nextPermutationIndex)
-                local r = group[nextPermutationName]
+                local nextPermutationName = generateRecipeName(name, common.FP_RECIPE_AFFIX, limits.difficulty,
+                        permutation.ingredientRotation, nextResultPermutationIndex)
+                local nextPermutationTable = group[nextPermutationName]
 
-                permutation[common.NEXT_RESULT_KEY] = r.name
-                r[common.PREVIOUS_RESULT_KEY] = permutation.name
+                permutation[NEXT_RESULT_KEY] = nextPermutationTable
+                nextPermutationTable[PREVIOUS_RESULT_KEY] = permutation
 
                 permutation.resultsFluidCount = resultsFluidCount
             end
             if limits.maxI > 0 then
-                local nextPermutationIndex
+                local nextIngredientPermutationIndex
                 if simpleMode and permutation.ingredientRotation < limits.maxI then
-                    nextPermutationIndex = limits.maxI
+                    nextIngredientPermutationIndex = limits.maxI
                 else
-                    nextPermutationIndex = permutation.ingredientRotation % limits.maxI + 1
+                    nextIngredientPermutationIndex = permutation.ingredientRotation % limits.maxI + 1
                 end
-                local nextPermutationName = generateRecipeName(name, common.FP_RECIPE_AFFIX, limits.difficulty, nextPermutationIndex, permutation.resultRotation)
-                local d = group[nextPermutationName]
+                local nextPermutationName = generateRecipeName(name, common.FP_RECIPE_AFFIX, limits.difficulty,
+                        nextIngredientPermutationIndex, permutation.resultRotation)
+                local nextPermutationTable = group[nextPermutationName]
 
-                permutation[common.NEXT_INGREDIENT_KEY] = d.name
-                d[common.PREVIOUS_INGREDIENT_KEY] = permutation.name
+                permutation[NEXT_INGREDIENT_KEY] = nextPermutationTable
+                nextPermutationTable[PREVIOUS_INGREDIENT_KEY] = permutation
 
                 permutation.ingredientsFluidCount = ingredientsFluidCount
             end
             permutations[permutation.name] = permutation
+        end
+
+        for _, permutation in pairs(group) do
+            if limits.maxR == 0 then
+                local other = permutation[NEXT_INGREDIENT_KEY]
+                if other ~= nil then
+                    permutation[NEXT_RESULT_CROSS_KEY] = other.name
+                    other[PREVIOUS_RESULT_CROSS_KEY] = permutation.name
+                end
+            elseif limits.maxR > 0 and permutation.resultRotation == limits.maxR and limits.maxI > 0 then
+                local other = permutation[NEXT_RESULT_KEY][NEXT_INGREDIENT_KEY]
+                if other ~= nil then
+                    permutation[NEXT_RESULT_CROSS_KEY] = other.name
+                    other[PREVIOUS_RESULT_CROSS_KEY] = permutation.name
+                end
+            end
+            if limits.maxI == 0 then
+                local other = permutation[NEXT_RESULT_KEY]
+                if other ~= nul then
+                    permutation[NEXT_INGREDIENT_CROSS_KEY] = other.name
+                    other[PREVIOUS_INGREDIENT_CROSS_KEY] = permutation.name
+                end
+            elseif limits.maxI > 0 and permutation.ingredientRotation == limits.maxI and limits.maxR > 0 then
+                local other = permutation[NEXT_INGREDIENT_KEY][NEXT_RESULT_KEY]
+                if other ~= nil then
+                    permutation[NEXT_INGREDIENT_CROSS_KEY] = other.name
+                    other[PREVIOUS_INGREDIENT_CROSS_KEY] = permutation.name
+                end
+            end
+        end
+
+        for _, permutation in pairs(group) do
+            for i = NEXT_INGREDIENT_KEY,4 do
+                local target = permutation[i]
+                if target ~= nil then
+                    permutation[i] = target.name
+                end
+            end
         end
 
         unlocks[name] = recipeUnlocks
@@ -249,11 +325,32 @@ end
 
 script.on_load(function()
     permutations = global.permutations
-    unlocks = global.unlocks or {}
+    unlocks = global.unlocks
+    playerSettings = global.playerSettings
 end)
 
+local function readPlayerSettings(playerIndex)
+    local value = settings.get_player_settings(game.get_player(playerIndex))[CROSS_CYCLE_SETTING].value
+    playerSettings[playerIndex][CROSS_CYCLE_SETTING] = value
+end
+
 script.on_configuration_changed(function(conf)
+    if unlocks == nil then
+        unlocks = {}
+        global.unlocks = unlocks
+    end
+
+    if playerSettings == nil then
+        playerSettings = {}
+        global.playerSettings = playerSettings
+        for index, player in pairs(game.connected_players) do
+            playerSettings[index] = {}
+            readPlayerSettings(index)
+        end
+    end
+
     buildRegistry()
+
     for _, force in pairs(game.forces) do
         handleForceTechnologyEffectsReset(force)
     end
@@ -261,4 +358,23 @@ end)
 
 script.on_init( function(conf)
     buildRegistry()
+
+    playerSettings = {}
+    global.playerSettings = playerSettings
+end)
+
+script.on_event(defines.events.on_player_joined_game, function(event)
+    playerSettings[event.player_index] = {}
+    readPlayerSettings(event.player_index)
+end)
+
+script.on_event(defines.events.on_player_left_game, function(player_index)
+    playerSettings[event.player_index] = nil
+end)
+
+script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
+    if event.setting_type ~= "runtime-per-user" or event.setting ~= CROSS_CYCLE_SETTING then
+        return
+    end
+    readPlayerSettings(event.player_index)
 end)
