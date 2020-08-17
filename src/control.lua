@@ -356,7 +356,7 @@ script.on_configuration_changed(function(conf)
     end
 end)
 
-script.on_init( function(conf)
+script.on_init(function(conf)
     buildRegistry()
 
     playerSettings = {}
@@ -368,7 +368,7 @@ script.on_event(defines.events.on_player_joined_game, function(event)
     readPlayerSettings(event.player_index)
 end)
 
-script.on_event(defines.events.on_player_left_game, function(player_index)
+script.on_event(defines.events.on_player_left_game, function(event)
     playerSettings[event.player_index] = nil
 end)
 
