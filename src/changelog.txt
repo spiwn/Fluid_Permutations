@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 0.3.1
-Date: ??. ??. ??
+Date: 17. 08. 2020
   Features:
     - Added Cross Cycle mode - a per player setting (toggleable during game) that allows any of the hotkeys to be used to cycle through all permutations (ingredients and results)
   Info:
