@@ -61,7 +61,7 @@ local function change_fluid_recipe(event, change)
     local fluidsBefore = {}
     local fluidbox = building.fluidbox
     local start,stop
-    if (change <= PREVIOUS_INGREDIENT_KEY) ~= same then
+    if (change <= PREVIOUS_INGREDIENT_KEY) ~= invertChange then
         start, stop, step = 1, recipePermutations.ingredientsFluidCount, 1
     else
         start, stop, step = #fluidbox, #fluidbox - recipePermutations.resultsFluidCount + 1, -1
