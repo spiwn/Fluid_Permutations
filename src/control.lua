@@ -324,30 +324,24 @@ local function buildRegistry()
 end
 
 script.on_load(function()
-    permutations = global.permutations
-    unlocks = global.unlocks
-    playerSettings = global.playerSettings
+    permutations = global.permutations or {}
+    unlocks = global.unlocks or {}
+    playerSettings = global.playerSettings or {}
 end)
 
 local function readPlayerSettings(playerIndex, player)
-    local p = player or game.get_player(playerIndex)
-    local value = settings.get_player_settings(p)[CROSS_CYCLE_SETTING].value
-    playerSettings[p.index][CROSS_CYCLE_SETTING] = value
+    player = player or game.get_player(playerIndex)
+    local value = settings.get_player_settings(player)[CROSS_CYCLE_SETTING].value
+    playerSettings[player.index][CROSS_CYCLE_SETTING] = value
 end
 
 script.on_configuration_changed(function(conf)
-    if unlocks == nil then
-        unlocks = {}
-        global.unlocks = unlocks
-    end
+    playerSettings = {}
+    global.playerSettings = playerSettings
 
-    if playerSettings == nil then
-        playerSettings = {}
-        global.playerSettings = playerSettings
-        for _, player in pairs(game.connected_players) do
-            playerSettings[player.index] = {}
-            readPlayerSettings(nil, player)
-        end
+    for _, player in pairs(game.connected_players) do
+        playerSettings[player.index] = {}
+        readPlayerSettings(nil, player)
     end
 
     buildRegistry()
