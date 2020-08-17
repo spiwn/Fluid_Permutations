@@ -329,9 +329,10 @@ script.on_load(function()
     playerSettings = global.playerSettings
 end)
 
-local function readPlayerSettings(playerIndex)
-    local value = settings.get_player_settings(game.get_player(playerIndex))[CROSS_CYCLE_SETTING].value
-    playerSettings[playerIndex][CROSS_CYCLE_SETTING] = value
+local function readPlayerSettings(playerIndex, player)
+    local p = player or game.get_player(playerIndex)
+    local value = settings.get_player_settings(p)[CROSS_CYCLE_SETTING].value
+    playerSettings[p.index][CROSS_CYCLE_SETTING] = value
 end
 
 script.on_configuration_changed(function(conf)
@@ -343,9 +344,9 @@ script.on_configuration_changed(function(conf)
     if playerSettings == nil then
         playerSettings = {}
         global.playerSettings = playerSettings
-        for index, player in pairs(game.connected_players) do
-            playerSettings[index] = {}
-            readPlayerSettings(index)
+        for _, player in pairs(game.connected_players) do
+            playerSettings[player.index] = {}
+            readPlayerSettings(nil, player)
         end
     end
 
