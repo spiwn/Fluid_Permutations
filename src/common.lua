@@ -1,4 +1,6 @@
-common = {
+local OMNIPERMUTE_AFFIX = "-omniperm"
+
+local common = {
     ["FP_RECIPE_AFFIX"] = "-fp",
     ["FP_ITEM_GROUP_NAME"] = "fluidpermutations",
 
@@ -20,7 +22,7 @@ common = {
     ["NEXT_RESULTS_PERMUTATION_INPUT"] = "next-results-fluid-recipe",
     ["PREVIOUS_RESULTS_PERMUTATION_INPUT"] = "previous-results-fluid-recipe",
 
-    ["OMNIPERMUTE_AFFIX"] = "-omniperm",
+    ["OMNIPERMUTE_AFFIX"] = OMNIPERMUTE_AFFIX,
 
     ["functions"] = {
         generateRecipeName = function(base, affix, difficulty, ingredientPermutation, resultPermutation, control)

@@ -60,7 +60,7 @@ local function change_fluid_recipe(event, change)
 
     local fluidsBefore = {}
     local fluidbox = building.fluidbox
-    local start,stop
+    local start, stop, step
     if (change <= PREVIOUS_INGREDIENT_KEY) ~= invertChange then
         start, stop, step = 1, recipePermutations.ingredientsFluidCount, 1
     else
@@ -95,7 +95,7 @@ local function change_fluid_recipe(event, change)
         for i = start, stop, step do
             if fluidbox.get_filter(i) == nil then
                 fluidbox[i] = v;
-                k, v = next(fluidsBefore, key)
+                k, v = next(fluidsBefore, k)
                 if k == nil then
                     break
                 end
