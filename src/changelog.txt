@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.3.6
+Date: 13. 01. 2021
+  Features:
+    - Expose a remote interface with a function that takes a recipe name and returns the recipe that both ingredient fluids and resulting fluids reversed
+  Bugfixes:
+    - Fix potential errors caused by bad code
+---------------------------------------------------------------------------------------------------
 Version: 0.3.5
 Date: 17. 08. 2020
   Bugfixes:
