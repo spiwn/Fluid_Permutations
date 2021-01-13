@@ -24,6 +24,8 @@ local common = {
 
     ["OMNIPERMUTE_AFFIX"] = OMNIPERMUTE_AFFIX,
 
+    ["REMOTE_INTERFACE_NAME"] = "fluid_permutations",
+
     ["functions"] = {
         generateRecipeName = function(base, affix, difficulty, ingredientPermutation, resultPermutation, control)
             local prefix = base
@@ -31,6 +33,14 @@ local common = {
                 prefix = prefix..OMNIPERMUTE_AFFIX.."-"..ingredientPermutation.."-"..resultPermutation
             end
             return prefix..affix.."-d"..difficulty.."-i"..ingredientPermutation.."-r"..resultPermutation
+        end,
+
+        factorial = function(num)
+            local result = 1
+            for i = 2, num do
+                result = result * i
+            end
+            return result
         end,
     }
 }

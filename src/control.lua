@@ -1,5 +1,7 @@
 local common = require("common")
 
+local generateRecipeName = common.functions.generateRecipeName
+
 local permutations
 local unlocks
 local playerSettings
@@ -159,15 +161,83 @@ script.on_event(defines.events.on_forces_merged, function(event)
     handleForceTechnologyEffectsReset(event.destination)
 end)
 
+local reverseFactorial = {
+    [0] = 0, [1] = 2, [2] = 2, [5] = 3, [6] = 3, [23] = 4, [24] = 4, [119] = 5, [120] = 5,
+    [719] = 6, [720] = 6, [5039] = 7, [5040] = 7, [40319] = 8, [40320] = 8 }
+local factorial = {}
+for i = 0, 8 do
+    factorial[i] = common.functions.factorial(i)
+end
+
+local function flipOne(index, maxIndex)
+    local count = reverseFactorial[maxIndex]
+    local flipped = index
+    local order = {}
+    local sorted = {}
+
+    if count > 0 then
+        local remaining = index % maxIndex
+        for i = 1, count do
+            local perIngredient = factorial[count - i]
+            local current = (math.floor(remaining / perIngredient)) + 1
+            remaining = index % perIngredient
+            for j = 1, count do
+                if j > current then
+                    break
+                end
+                if sorted[j] then
+                    current = current + 1
+                end
+            end
+            order[i] = current
+            sorted[current] = 1
+        end
+        flipped = 0
+        for i = count, 2, -1 do
+            local current = order[i]
+            for j = count, i + 1, -1 do
+                if order[j] <= current then
+                    current = current - 1
+                end
+            end
+            if i > 1 then
+                current = factorial[i - 1] * (current - 1)
+            end
+            flipped = flipped + current
+        end
+    end
+    if flipped < 1 then
+        flipped = maxIndex
+    end
+    return flipped
+end
+
+local remote_interface = {}
+function remote_interface.flip_recipe(recipeName)
+    local recipePermutations = permutations[recipeName]
+    if recipePermutations == nil then
+        return nil
+    end
+    local groupName = recipePermutations.groupName
+    local baseRecipe = permutations[groupName]
+    local flippedI = flipOne(recipePermutations.ingredientRotation, baseRecipe.ingredientRotation)
+    local flippedR = flipOne(recipePermutations.resultRotation, baseRecipe.resultRotation)
+    if flippedI == baseRecipe.ingredientRotation and flippedR == baseRecipe.resultRotation then
+        return groupName
+    end
+    return generateRecipeName(
+        groupName,
+        common.FP_RECIPE_AFFIX,
+        baseRecipe.difficulty,
+        flippedI,
+        flippedR)
+end
+
+remote.add_interface(common.REMOTE_INTERFACE_NAME, remote_interface)
+
+
 local function buildRegistry()
     local simpleMode = settings.startup["fluid-permutations-simple-mode"].value
-
-    local generateRecipeName = common.functions.generateRecipeName
-
-    local reverseFactorial = {
-        [0] = 0, [1] = 2, [2] = 2, [5] = 3, [6] = 3, [23] = 4, [24] = 4, [119] = 5, [120] = 5,
-        [719] = 6, [720] = 6, [5039] = 7, [5040] = 7, [40319] = 8, [40320] = 8 }
-
     local difficulty = game.difficulty_settings.recipe_difficulty
     -- n - normal - '0', e - expensive - '1', a - all - '-1'
     local difficultyMap = { n = 0, e = 1, a = -1}
@@ -215,8 +285,6 @@ local function buildRegistry()
     end
 
     for name, group in pairs(groups) do
-        local groupDifficulty
-
         local limits = group.limits
         group.limits = nil
         if limits.maxI == 0 and limits.maxR == 1 then
@@ -231,7 +299,8 @@ local function buildRegistry()
             name = name,
             groupName = name,
             ingredientRotation = limits.maxI,
-            resultRotation = limits.maxR
+            resultRotation = limits.maxR,
+            difficulty = limits.difficulty,
         }
         local alternativeBaseName = generateRecipeName(name, common.FP_RECIPE_AFFIX, limits.difficulty, limits.maxI, limits.maxR)
         group[alternativeBaseName] = base
@@ -241,7 +310,6 @@ local function buildRegistry()
         resultsFluidCount = reverseFactorial[limits.maxR]
         ingredientsFluidCount = reverseFactorial[limits.maxI]
         for _, permutation in pairs(group) do
-
             recipeUnlocks[#recipeUnlocks + 1] = permutation.name
 
             if limits.maxR > 0 then
@@ -295,7 +363,7 @@ local function buildRegistry()
             end
             if limits.maxI == 0 then
                 local other = permutation[NEXT_RESULT_KEY]
-                if other ~= nul then
+                if other ~= nil then
                     permutation[NEXT_INGREDIENT_CROSS_KEY] = other.name
                     other[PREVIOUS_INGREDIENT_CROSS_KEY] = permutation.name
                 end

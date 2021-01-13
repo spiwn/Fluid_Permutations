@@ -3,13 +3,7 @@ local common = require("common")
 local permutationsThreshold = settings.startup[common.PERMUTATION_THRESHOLD_SETTING].value
 local simpleMode = settings.startup[common.SIMPLE_MODE_SETTING].value
 
-local function factorial(num)
-    local result = 1
-    for i = 2, num do
-        result = result * i
-    end
-    return result
-end
+local factorial = common.functions.factorial;
 
 local function fluidCount(items)
     if items == nil then
