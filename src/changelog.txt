@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.3.7
+Date: 17. 01. 2021
+  Bugfixes:
+    - Make the flip_recipe (mirroring) function exposed in the remote interface actually return the correct recipe. Current solution is a brute force temporary workaround until a better solution is available.
+---------------------------------------------------------------------------------------------------
 Version: 0.3.6
 Date: 13. 01. 2021
   Features:

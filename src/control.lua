@@ -169,51 +169,71 @@ for i = 0, 8 do
     factorial[i] = common.functions.factorial(i)
 end
 
+-- Temporary solution until a better algorithm is implemented
+local function permutationByCount(ttable, n, target, counter)
+    if n == 0 then
+		counter[1] = counter[1] + 1
+		return counter[1] == target
+    end
+
+    for i = 1, n do
+        ttable[n], ttable[i] = ttable[i], ttable[n]
+        if permutationByCount(ttable, n - 1, target, counter) then
+			return true
+		end
+        ttable[n], ttable[i] = ttable[i], ttable[n]
+    end
+end
+
+local function permutationNumberByTarget(ttable, n, target, counter, position)
+    if position ~= nil and position == 0 then
+		counter[1] = counter[1] + 1
+		local equal = true
+		for i = 1, #target do
+			if ttable[i] ~= target[i] then
+				equal = false
+				break
+			end
+		end
+		return equal
+    end
+	position = position or n
+    for i = 1, position do
+        ttable[position], ttable[i] = ttable[i], ttable[position]
+        if permutationNumberByTarget(ttable, n, target, counter, position - 1) then
+			return true
+		end
+        ttable[position], ttable[i] = ttable[i], ttable[position]
+    end
+end
+
 local function flipOne(index, maxIndex)
     local count = reverseFactorial[maxIndex]
-    local flipped = index
-    local order = {}
-    local sorted = {}
+    local indexesHolder = {}
+    local permutedIndexes = {}
+    local counter = {0}
+    for i = 1, count do
+        indexesHolder[i] = i
+        permutedIndexes[i] = i
+    end
 
-    if count > 0 then
-        local remaining = index % maxIndex
-        for i = 1, count do
-            local perIngredient = factorial[count - i]
-            local current = (math.floor(remaining / perIngredient)) + 1
-            remaining = index % perIngredient
-            for j = 1, count do
-                if j > current then
-                    break
-                end
-                if sorted[j] then
-                    current = current + 1
-                end
-            end
-            order[i] = current
-            sorted[current] = 1
-        end
-        flipped = 0
-        for i = count, 2, -1 do
-            local current = order[i]
-            for j = count, i + 1, -1 do
-                if order[j] <= current then
-                    current = current - 1
-                end
-            end
-            if i > 1 then
-                current = factorial[i - 1] * (current - 1)
-            end
-            flipped = flipped + current
-        end
+    permutationByCount(permutedIndexes, count, index, counter)
+
+    for i = 1, math.floor((count + 1)/ 2) do
+        permutedIndexes[i], permutedIndexes[count + 1 - i] = permutedIndexes[count + 1 - i], permutedIndexes[i]
     end
-    if flipped < 1 then
-        flipped = maxIndex
-    end
-    return flipped
+
+    counter[1] = 0
+    permutationNumberByTarget(indexesHolder, count, permutedIndexes, counter)
+
+    return counter[1]
 end
 
 local remote_interface = {}
 function remote_interface.flip_recipe(recipeName)
+    if permutations == nil then
+        error("flip_recipe called too early. on_init/on_load/on_configuration_changed not yet called for Fluid_Permutations")
+    end
     local recipePermutations = permutations[recipeName]
     if recipePermutations == nil then
         return nil
