@@ -18,6 +18,13 @@
         "(?)angelspetrochem",
         "(?)SuperExpensiveMode",
         "(?)H2O",
-        "(?)deadlock_stacked_recipes"
+        "(?)deadlock_stacked_recipes",
+        "(?)pycoalprocessing",
+        "(?)pyfusionenergy",
+        "(?)pyindustry",
+        "(?)pyhightech",
+        "(?)pyrawores",
+        "(?)pypetroleumhandling",
+        "(?)pyalienlife"
     ]
 }
