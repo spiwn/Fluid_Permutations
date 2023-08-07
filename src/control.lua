@@ -307,10 +307,10 @@ local function buildRegistry()
     for name, group in pairs(groups) do
         local limits = group.limits
         group.limits = nil
-        if limits.maxI == 0 and limits.maxR == 1 then
-            limits.maxR = 2
-        elseif limits.maxI == 1 and limits.maxR == 0 then
-            limits.maxI = 2
+        if limits.maxI == 0 and limits.maxR > 0 then
+            limits.maxR = limits.maxR + 1
+        elseif limits.maxI > 0 and limits.maxR == 0 then
+            limits.maxI = limits.maxI + 1
         end
 
         local recipeUnlocks = {}
